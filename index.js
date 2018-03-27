@@ -1,15 +1,13 @@
 #!/usr/local/bin/node
+let program = require("commander");
 
-let args = process.argv.slice(2);
-let preset = args[0];
-let emoji = args[1];
-let message = args[2];
+program
+  .arguments("<preset>")
+  .option("-e, --emoji <emoji>", "Use custom emoji")
+  .option("-m, --message <message>", "Use custom message")
+  .parse(process.argv);
 
-if(typeof preset !== "undefined") {
-    missingParams(3);
+if (!process.argv.slice(2).length) {
+  program.outputHelp();
 }
 
-
-let missingParams = (count) => {
-    console.log(count + " missing params!");
-}
