@@ -1,0 +1,21 @@
+{
+  "name": "slackstatus",
+  "version": "1.0.0",
+  "description": "Slack status CLI updater",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "slack",
+    "status"
+  ],
+  "author": "Aleksi Kallio <onik@onik.org>",
+  "license": "GPL-3.0+",
+  "preferGlobal": true,
+  "bin": {
+    "slackstatus": "index.js"
+  },
+  "dependencies": {
+    "commander": "^2.15.1"
+  }
+}
