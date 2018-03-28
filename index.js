@@ -1,5 +1,12 @@
 #!/usr/local/bin/node
 let program = require("commander");
+let request = require("superagent");
+let path = require("path");
+let jsonfile = require("jsonfile");
+
+const os = require("os");
+
+let cfg;
 
 program
   .version("1.0.0", "-v, --version");
@@ -42,9 +49,39 @@ program
 program
   .option("-e, --emoji <emoji>", "Use custom emoji")
   .option("-m, --message <message>", "Use custom message")
+  .option("-c, --config <configfile>", "Define alternative config file")
+  .parse(process.argv);
 
-program.parse(process.argv);
+//program.parse(process.argv);
 if (!process.argv.slice(2).length) {
   program.outputHelp();
 }
 
+let configfile = path.resolve(os.homedir(), ".slackstatus");
+if(program.config) {
+  configfile = program.config;
+}
+
+console.log("Using configfile: " + configfile);
+loadConfig(configfile);
+
+
+function loadConfig(configFile) {
+  jsonfile.readFile(configfile, (err, loadedCfg) => {
+    if(err) {
+      if(err.code == "ENOENT") {
+        console.log("Config file doesn't exit, creating...");
+        createConfig(configFile);
+      }
+    }
+    cfg = loadedCfg;
+  });
+}
+
+function createConfig(configFile) {
+  jsonfile.writeFile(configFile, {"token": ""}, (err) => {
+    if(err) {
+      console.log(err);
+    }
+  });
+}
