@@ -5,6 +5,7 @@ let path = require("path");
 let jsonfile = require("jsonfile");
 
 const os = require("os");
+const DEBUG = true;
 
 let cfg;
 
@@ -62,26 +63,46 @@ if(program.config) {
   configfile = program.config;
 }
 
-console.log("Using configfile: " + configfile);
-loadConfig(configfile);
-
+loadConfig(configfile).then((data) => {
+  console.log("Loaded config!");
+  cfg = data;
+}, (err) => {
+  if(DEBUG) console.log(err);
+  console.log("Error loading config, trying to create...");
+  let template = {"token": ""};
+  let createP = createConfig(configfile, template);
+  createP.then((config) => {
+    console.log("Config created successfully!");
+    cfg = config;
+  }, (err) => {
+    if(DEBUG) console.log(err);
+    console.log("Couldn't create configfile, quitting!");
+    process.exit(1);
+  });
+}).catch((err) => {
+  console.log(err);
+});
 
 function loadConfig(configFile) {
-  jsonfile.readFile(configfile, (err, loadedCfg) => {
-    if(err) {
-      if(err.code == "ENOENT") {
-        console.log("Config file doesn't exit, creating...");
-        createConfig(configFile);
+  return new Promise((resolve, reject) => {
+    jsonfile.readFile(configFile, (err, data) => {
+      if(err) {
+        reject(err);
+      } else {
+        resolve(data);
       }
-    }
-    cfg = loadedCfg;
+    });
   });
 }
 
-function createConfig(configFile) {
-  jsonfile.writeFile(configFile, {"token": ""}, (err) => {
-    if(err) {
-      console.log(err);
-    }
+function createConfig(configFile, template) {
+  return new Promise((resolve, reject) => {
+    jsonfile.writeFile(configFile, template, (err) => {
+      if(err) {
+        reject(err);
+      } else {
+        resolve(template);
+      }
+    });
   });
 }
