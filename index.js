@@ -9,7 +9,9 @@ let prompt = require("co-prompt");
 const os = require("os");
 const DEBUG = true;
 
-let cfg, mode, providedToken, providedUsePreset;
+let cfg, providedToken, providedUsePreset;
+
+let mode = null;
 
 let pr = parseArgs(process.argv);
 
@@ -18,16 +20,14 @@ if(pr.config) {
   configfile = pr.config;
 }
 
-handleConfig(configfile).then((cfg) => {
-  switch(mode) {
-  case "token":
-    cfg.token = providedToken;
-    createOrUpdateConfig(configfile, cfg);
-    console.log("Saved new token!");
-    break;
-  default: 
-    console.log("No mode selected!");
-  }
+handleConfig(configfile).then((returncfg) => {
+  cfg = returncfg;
+  let modecheck = setInterval(() => {
+    if (mode !== null) {
+      clearInterval(modecheck);
+      handleMode();
+    }
+  }, 100);
 });
 
 function parseArgs(args) {
@@ -35,6 +35,7 @@ function parseArgs(args) {
     .version("1.0.0", "-v, --version");
 
   program.command("token [token]").description("Saves your token").action((token) => {
+    mode = "token";
     if(!token) {
       co(function *() {
         let tmpToken = yield prompt("Token: ");
@@ -47,22 +48,25 @@ function parseArgs(args) {
     } else {
       providedToken = token;
     }
-    mode = "token";
   });
 
   program.command("preset <preset>").description("Uses the preset (can be listed with command list-presets)").action((preset) => {
+    mode = "usepreset";
     console.log("Preset selected: " + preset);
   });
 
   program.command("default").description("Restores your default status (can be set with setdefault").action(() => {
+    mode = "default";
     console.log("Restoring default: " + cfg.default.emoji + " - " + cfg.default.message);
   });
 
   program.command("list-presets").description("Lists the available presets").action(() => {
+    mode = "list";
     console.log("Defined presets: meeting, lunch");
   });
 
   program.command("setdefault").description("Sets the default status, use -e and -m to set").action(() => {
+    mode = "setDefault";
     console.log("Preset to set: " + program.emoji + " - " + program.message);
   });
 
@@ -76,7 +80,9 @@ function parseArgs(args) {
   if (!args.slice(2).length) {
     program.outputHelp();
   }
-
+  if(mode === null) {
+    mode = "unset";
+  }
   return program;
 }
 
@@ -125,4 +131,16 @@ function handleConfig(configfile) {
       reject(err);
     });
   });
+}
+
+function handleMode() {
+  switch(mode) {
+  case "token":
+    cfg.token = providedToken;
+    createOrUpdateConfig(configfile, cfg);
+    console.log("Saved new token!");
+    break;
+  default: 
+    console.log("No mode selected!");
+  }
 }
