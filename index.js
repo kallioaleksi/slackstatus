@@ -1,15 +1,17 @@
 #!/usr/local/bin/node
+
 let program = require("commander");
 let request = require("superagent");
 let path = require("path");
 let jsonfile = require("jsonfile");
 let co = require("co");
 let prompt = require("co-prompt");
+let clitable = require("cli-table");
 
 const os = require("os");
 const DEBUG = true;
 
-let cfg, providedToken, providedUsePreset;
+let cfg, providedToken, presetVar;
 
 let mode = null;
 
@@ -52,6 +54,7 @@ function parseArgs(args) {
 
   program.command("preset <preset>").description("Uses the preset (can be listed with command list-presets)").action((preset) => {
     mode = "usepreset";
+    presetVar = preset;
     console.log("Preset selected: " + preset);
   });
 
@@ -62,7 +65,11 @@ function parseArgs(args) {
 
   program.command("list-presets").description("Lists the available presets").action(() => {
     mode = "list";
-    console.log("Defined presets: meeting, lunch");
+  });
+
+  program.command("save-preset <preset>").description("Saves the preset defined by -e and -m").action((preset) => {
+    mode = "save";
+    presetVar = preset;
   });
 
   program.command("setdefault").description("Sets the default status, use -e and -m to set").action(() => {
@@ -139,6 +146,52 @@ function handleMode() {
     cfg.token = providedToken;
     createOrUpdateConfig(configfile, cfg);
     console.log("Saved new token!");
+    break;
+  case "list":
+    if(typeof cfg.presets !== "undefined" && cfg.presets.length > 0) {
+      console.log("Defined presets:");
+      let table = new clitable({
+        head: ["Preset name", "Emoji", "Message"]
+      });
+      for(let i in cfg.presets) {
+        table.push([
+          cfg.presets[i].name,
+          cfg.presets[i].emoji,
+          cfg.presets[i].message
+        ]);
+        //console.log(" - " + cfg.presets[i].name);
+      }
+      console.log(table.toString());
+    } else {
+      console.log("No presets found!");
+    }
+    break;
+  case "save":
+    if(typeof pr.emoji === "undefined" || typeof pr.emoji === "undefined") {
+      console.log("Missing preset arguments -e <emoji> and -m <message>!");
+      return;
+    }
+    if(typeof cfg.presets === "undefined") {
+      cfg.presets = [];
+    }
+    for(let i in cfg.presets) {
+      if(cfg.presets[i].name === presetVar) {
+        cfg.presets.splice(i, 1);
+      }
+    }
+    if(pr.emoji.charAt(0) !== ":") {
+      pr.emoji = ":" + pr.emoji;
+    }
+    if(pr.emoji.slice(-1) !== ":") {
+      pr.emoji = pr.emoji + ":";
+    }
+    cfg.presets.push({
+      name: presetVar,
+      emoji: pr.emoji,
+      message: pr.message
+    });
+    createOrUpdateConfig(configfile, cfg);
+    console.log("Preset saved!");
     break;
   default: 
     console.log("No mode selected!");
