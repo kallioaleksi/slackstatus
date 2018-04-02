@@ -54,7 +54,7 @@ function parseArgs(args) {
     console.log("Preset selected: " + preset);
   });
 
-  program.command("default").description("Restores your default status (can be set with setdefault").action((preset) => {
+  program.command("default").description("Restores your default status (can be set with setdefault").action(() => {
     console.log("Restoring default: " + cfg.default.emoji + " - " + cfg.default.message);
   });
 
@@ -62,8 +62,8 @@ function parseArgs(args) {
     console.log("Defined presets: meeting, lunch");
   });
 
-  program.command("setdefault").description("Sets the default status, use -e and -m to set").action((preset) => {
-    console.log("Preset to set: " + emoji + " - " + message);
+  program.command("setdefault").description("Sets the default status, use -e and -m to set").action(() => {
+    console.log("Preset to set: " + program.emoji + " - " + program.message);
   });
 
   program
