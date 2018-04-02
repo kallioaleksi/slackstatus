@@ -9,6 +9,7 @@ let prompt = require("co-prompt");
 let clitable = require("cli-table");
 
 const os = require("os");
+const url = "https://slack.com/api/users.profile.set";
 const DEBUG = true;
 
 let cfg, providedToken, presetVar;
@@ -60,7 +61,6 @@ function parseArgs(args) {
 
   program.command("default").description("Restores your default status (can be set with setdefault").action(() => {
     mode = "default";
-    console.log("Restoring default: " + cfg.default.emoji + " - " + cfg.default.message);
   });
 
   program.command("list-presets").description("Lists the available presets").action(() => {
@@ -212,7 +212,34 @@ function handleMode() {
     createOrUpdateConfig(configfile, cfg);
     console.log("Default preset saved!");
     break;
+  case "default":
+    updateStatus(providedToken, cfg.default.emoji, cfg.default.message);
+    break;
   default: 
     console.log("No mode selected!");
   }
+}
+
+function updateStatus(updateToken, updateEmoji, updateMessage) {
+  request.post(url, {
+    method: "POST",
+    body: {
+      profile: encodeURIComponent(JSON.stringify({status_text: updateMessage, status_emoji: updateEmoji}))
+    },
+    auth: {
+      bearer: updateToken
+    }
+  }, (err, response, body) => {
+    if(!err) {
+      if(typeof response.body !== "undefined") {
+        if(response.body.ok) {
+          console.log("Status updated successfully!");
+        } else {
+          console.log("Error: " + response.body.error);
+        }
+      }
+    } else {
+      console.log("Error!");
+    }
+  });
 }
