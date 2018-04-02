@@ -193,6 +193,25 @@ function handleMode() {
     createOrUpdateConfig(configfile, cfg);
     console.log("Preset saved!");
     break;
+  case "setDefault":
+    if(typeof pr.emoji === "undefined" || typeof pr.emoji === "undefined") {
+      console.log("Missing preset arguments -e <emoji> and -m <message>!");
+      return;
+    }
+    if(pr.emoji.charAt(0) !== ":") {
+      pr.emoji = ":" + pr.emoji;
+    }
+    if(pr.emoji.slice(-1) !== ":") {
+      pr.emoji = pr.emoji + ":";
+    }
+    cfg.default = {
+      name: presetVar,
+      emoji: pr.emoji,
+      message: pr.message
+    };
+    createOrUpdateConfig(configfile, cfg);
+    console.log("Default preset saved!");
+    break;
   default: 
     console.log("No mode selected!");
   }
