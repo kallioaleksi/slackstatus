@@ -211,6 +211,14 @@ function handleMode() {
   case "default":
     updateStatus(cfg.token, cfg.default.emoji, cfg.default.message);
     break;
+  case "usepreset":
+    for(let i in cfg.presets) {
+      if(cfg.presets[i].name === presetVar) {
+        updateStatus(cfg.token, cfg.presets[i].emoji, cfg.presets[i].message);
+        break;
+      }
+    }
+    break;
   default: 
     console.log("No mode selected!");
   }
