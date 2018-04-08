@@ -1,5 +1,5 @@
 {
-  "name": "slackstatus",
+  "name": "@onikk/slackstatus",
   "version": "1.0.0",
   "description": "Slack status CLI updater",
   "scripts": {
@@ -7,7 +7,8 @@
   },
   "keywords": [
     "slack",
-    "status"
+    "status",
+    "cli"
   ],
   "author": "Aleksi Kallio <onik@onik.org>",
   "license": "GPL-3.0+",
