@@ -1,18 +1,20 @@
 #!/usr/local/bin/node
 
-const program  = require("commander");
-const request  = require("superagent");
-const path     = require("path");
+const program = require("commander");
+const request = require("superagent");
+const path = require("path");
 const jsonfile = require("jsonfile");
-const co       = require("co");
-const prompt   = require("co-prompt");
+const co = require("co");
+const prompt = require("co-prompt");
 const clitable = require("cli-table");
-const os       = require("os");
+const os = require("os");
 
-const url   = "https://slack.com/api/users.profile.set";
+const url = "https://slack.com/api/users.profile.set";
 const DEBUG = false;
 
-let cfg, providedToken, presetVar;
+let cfg,
+  providedToken,
+  presetVar;
 
 let mode = null;
 
@@ -225,8 +227,7 @@ function handleMode() {
       if (pr.emoji.slice(-1) !== ":") {
         pr.emoji = pr.emoji + ":";
       }
-      cfg.
-    default = {
+      cfg.default = {
         name: presetVar,
         emoji: pr.emoji,
         message: pr.message
