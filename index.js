@@ -213,7 +213,7 @@ function handleMode() {
     console.log("Default preset saved!");
     break;
   case "default":
-    updateStatus(providedToken, cfg.default.emoji, cfg.default.message);
+    updateStatus(cfg.token, cfg.default.emoji, cfg.default.message);
     break;
   default: 
     console.log("No mode selected!");
@@ -221,25 +221,27 @@ function handleMode() {
 }
 
 function updateStatus(updateToken, updateEmoji, updateMessage) {
-  request.post(url, {
-    method: "POST",
-    body: {
-      profile: encodeURIComponent(JSON.stringify({status_text: updateMessage, status_emoji: updateEmoji}))
-    },
-    auth: {
-      bearer: updateToken
-    }
-  }, (err, response, body) => {
-    if(!err) {
-      if(typeof response.body !== "undefined") {
-        if(response.body.ok) {
-          console.log("Status updated successfully!");
-        } else {
-          console.log("Error: " + response.body.error);
+  let profile = {
+    status_text: updateMessage,
+    status_emoji: updateEmoji
+  };
+  request
+    .post(url)
+    .send({profile: profile, token: updateToken})
+    .set("Content-type", "application/json; charset=utf-8")
+    .set("Authorization", "Bearer " + updateToken)
+    .end((err, response) => {
+      if(!err) {
+        if(typeof response.body !== "undefined") {
+          if(response.body.ok) {
+            console.log("Status updated successfully!");
+          } else {
+            console.log("Error: " + response.body.error);
+            console.log(response.body);
+          }
         }
+      } else {
+        console.log("Error!");
       }
-    } else {
-      console.log("Error!");
-    }
-  });
+    });
 }
