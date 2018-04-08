@@ -10,7 +10,7 @@ let clitable = require("cli-table");
 
 const os = require("os");
 const url = "https://slack.com/api/users.profile.set";
-const DEBUG = true;
+const DEBUG = false;
 
 let cfg, providedToken, presetVar;
 
@@ -56,7 +56,6 @@ function parseArgs(args) {
   program.command("preset <preset>").description("Uses the preset (can be listed with command list-presets)").action((preset) => {
     mode = "usepreset";
     presetVar = preset;
-    console.log("Preset selected: " + preset);
   });
 
   program.command("default").description("Restores your default status (can be set with setdefault").action(() => {
@@ -74,7 +73,6 @@ function parseArgs(args) {
 
   program.command("setdefault").description("Sets the default status, use -e and -m to set").action(() => {
     mode = "setDefault";
-    console.log("Preset to set: " + program.emoji + " - " + program.message);
   });
 
   program
@@ -120,14 +118,12 @@ function createOrUpdateConfig(configFile, template) {
 function handleConfig(configfile) {
   return new Promise((resolve, reject) => {
     loadConfig(configfile).then((data) => {
-      console.log("Loaded config!");
       resolve(data);
     }, (err) => {
       if(DEBUG) console.log(err);
-      console.log("Error loading config, trying to create...");
+      console.log("Creating new configfile...");
       let template = {"token": ""};
       createOrUpdateConfig(configfile, template).then((config) => {
-        console.log("Config created successfully!");
         resolve(config);
       }, (err) => {
         if(DEBUG) console.log(err);
@@ -167,8 +163,8 @@ function handleMode() {
     }
     break;
   case "save":
-    if(typeof pr.emoji === "undefined" || typeof pr.emoji === "undefined") {
-      console.log("Missing preset arguments -e <emoji> and -m <message>!");
+    if(typeof pr.message === "undefined" || typeof pr.emoji === "undefined") {
+      console.log("Missing preset argument(s) -e <emoji> or -m <message>!");
       return;
     }
     if(typeof cfg.presets === "undefined") {
@@ -237,11 +233,10 @@ function updateStatus(updateToken, updateEmoji, updateMessage) {
             console.log("Status updated successfully!");
           } else {
             console.log("Error: " + response.body.error);
-            console.log(response.body);
           }
         }
       } else {
-        console.log("Error!");
+        console.log("Unknown error!");
       }
     });
 }
