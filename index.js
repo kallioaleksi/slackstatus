@@ -58,7 +58,7 @@ function parseArgs(args) {
     presetVar = preset;
   });
 
-  program.command("default").description("Restores your default status (can be set with setdefault").action(() => {
+  program.command("default").description("Restores your default status (can be set with setdefault)").action(() => {
     mode = "default";
   });
 
@@ -73,6 +73,10 @@ function parseArgs(args) {
 
   program.command("setdefault").description("Sets the default status, use -e and -m to set").action(() => {
     mode = "setDefault";
+  });
+
+  program.command("set").description("Sets the emoji and message provided with the -e and -m options").action(() => {
+    mode = "set";
   });
 
   program
@@ -218,6 +222,19 @@ function handleMode() {
         break;
       }
     }
+    break;
+  case "set":
+    if(typeof pr.emoji === "undefined" || typeof pr.emoji === "undefined") {
+      console.log("Missing preset arguments -e <emoji> and -m <message>!");
+      return;
+    }
+    if(pr.emoji.charAt(0) !== ":") {
+      pr.emoji = ":" + pr.emoji;
+    }
+    if(pr.emoji.slice(-1) !== ":") {
+      pr.emoji = pr.emoji + ":";
+    }
+    updateStatus(cfg.token, pr.emoji, pr.message);
     break;
   default: 
     console.log("No mode selected!");

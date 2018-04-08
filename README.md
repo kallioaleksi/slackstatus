@@ -15,7 +15,8 @@ CLI program to set status to Slack. Just a simple CLI program which should be ea
 
       token [token]              Saves your token
       preset <preset>            Uses the preset (can be listed with command list-presets)
-      default                    Restores your default status (can be set with setdefault
+      default                    Restores your default status (can be set with setdefault)
       list-presets               Lists the available presets
       save-preset <preset>       Saves the preset defined by -e and -m
       setdefault                 Sets the default status, use -e and -m to set
+      set                        Sets the emoji and message provided with the -e and -m options
