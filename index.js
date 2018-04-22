@@ -1,15 +1,14 @@
 #!/usr/local/bin/node
 
 const program = require("commander");
-const request = require("superagent");
 const path = require("path");
 const jsonfile = require("jsonfile");
 const co = require("co");
 const prompt = require("co-prompt");
 const clitable = require("cli-table");
 const os = require("os");
+const { WebClient } = require("@slack/client");
 
-const url = "https://slack.com/api/users.profile.set";
 const DEBUG = false;
 
 let cfg,
@@ -182,7 +181,6 @@ function handleMode() {
         });
         for (let i in cfg.presets) {
           table.push([cfg.presets[i].name, cfg.presets[i].emoji, cfg.presets[i].message]);
-          //console.log(" - " + cfg.presets[i].name);
         }
         console.log(table.toString());
       } else {
@@ -269,22 +267,13 @@ function updateStatus(updateToken, updateEmoji, updateMessage) {
     status_text: updateMessage,
     status_emoji: updateEmoji
   };
-  request
-    .post(url)
-    .send({profile: profile, token: updateToken})
-    .set("Content-type", "application/json; charset=utf-8")
-    .set("Authorization", "Bearer " + updateToken)
-    .end((err, response) => {
-      if (!err) {
-        if (typeof response.body !== "undefined") {
-          if (response.body.ok) {
-            console.log("Status updated successfully!");
-          } else {
-            console.log("Error: " + response.body.error);
-          }
-        }
+  let web = new WebClient(updateToken);
+  web.users.profile.set({profile: profile})
+    .then((res) => {
+      if (res.ok) {
+        console.log("Status updated successfully!");
       } else {
-        console.log("Unknown error!");
+        console.log("Error: " + res.error);
       }
     });
 }
