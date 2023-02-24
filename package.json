@@ -17,7 +17,7 @@
     "slackstatus": "index.js"
   },
   "dependencies": {
-    "@slack/client": "^4.1.0",
+    "@slack/client": "^5.0.2",
     "cli-table": "^0.3.1",
     "co": "^4.6.0",
     "co-prompt": "^1.0.0",
